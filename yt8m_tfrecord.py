@@ -13,11 +13,11 @@ import pbtxthelper as pbh
 # from google.cloud import storage
 
 flags.DEFINE_string(
-    'raw_data_dir', 'output', 'Directory path for raw Imagenet dataset. '
+    'raw_data_dir', 'output', 'Directory path for raw yt8m dataset. '
     'Should classes subdirectories inside it.')
 
 flags.DEFINE_string(
-    'output_dir', 'output_tf', 'Directory path for tfrecords Imagenet dataset. '
+    'output_dir', 'output_tf', 'Directory path for tfrecords yt8m dataset. '
     'will have train and validation subdirectories inside it.')
 
 flags.DEFINE_string(

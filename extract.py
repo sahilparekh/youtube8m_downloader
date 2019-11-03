@@ -8,7 +8,7 @@ import logging
 import random
 import imutils
 
-
+csv_file = 'yt_bb_classification_train.csv'
 baseurl = 'http://youtu.be/'
 temp_dir = 'temp'
 output_dir = 'output'
@@ -72,7 +72,7 @@ def extract_video(item):
     vidcap.release()
     os.remove(down_vid)
 
-train = pd.read_csv('yt_bb_classification_train.csv', header=None)
+train = pd.read_csv(csv_file, header=None)
 train.columns=['yt_id', 'ts', 'cid', 'cname', 'present']
 all_present = train[train.present == 'present']
 train_grouped = all_present.groupby('yt_id').groups
@@ -87,8 +87,6 @@ if not os.path.isdir(temp_dir):
 
 train_iterator = list(train_grouped.items())
 
-# for train_rec in train_iterator:
-#     extract_video(train_rec)
 threads = cpu_count() - 1
 logging.debug('Total Threads {0}'.format(threads))
 with Pool(processes=threads) as p:
