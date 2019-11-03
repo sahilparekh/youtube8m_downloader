@@ -138,45 +138,6 @@ def _convert_to_example(filename, image_buffer, label, synset, height, width):
     return example
 
 
-def _is_png(filename):
-    """Determine if a file contains a PNG format image.
-
-    Args:
-    filename: string, path of the image file.
-
-    Returns:
-    boolean indicating if the image is a PNG.
-    """
-    # File list from:
-    # https://github.com/cytsai/ilsvrc-cmyk-image-list
-    return 'n02105855_2933.JPEG' in filename
-
-
-def _is_cmyk(filename):
-    """Determine if file contains a CMYK JPEG format image.
-
-    Args:
-    filename: string, path of the image file.
-
-    Returns:
-    boolean indicating if the image is a JPEG encoded with CMYK color space.
-    """
-    # File list from:
-    # https://github.com/cytsai/ilsvrc-cmyk-image-list
-    blacklist = set(['n01739381_1309.JPEG', 'n02077923_14822.JPEG',
-                   'n02447366_23489.JPEG', 'n02492035_15739.JPEG',
-                   'n02747177_10752.JPEG', 'n03018349_4028.JPEG',
-                   'n03062245_4620.JPEG', 'n03347037_9675.JPEG',
-                   'n03467068_12171.JPEG', 'n03529860_11437.JPEG',
-                   'n03544143_17228.JPEG', 'n03633091_5218.JPEG',
-                   'n03710637_5125.JPEG', 'n03961711_5286.JPEG',
-                   'n04033995_2932.JPEG', 'n04258138_17003.JPEG',
-                   'n04264628_27969.JPEG', 'n04336792_7448.JPEG',
-                   'n04371774_5854.JPEG', 'n04596742_4225.JPEG',
-                   'n07583066_647.JPEG', 'n13037406_4650.JPEG'])
-    return os.path.basename(filename) in blacklist
-
-
 class ImageCoder(object):
     """Helper class that provides TensorFlow image coding utilities."""
 
@@ -184,27 +145,9 @@ class ImageCoder(object):
         # Create a single Session to run all image coding calls.
         self._sess = tf.Session()
 
-        # Initializes function that converts PNG to JPEG data.
-        self._png_data = tf.placeholder(dtype=tf.string)
-        image = tf.image.decode_png(self._png_data, channels=3)
-        self._png_to_jpeg = tf.image.encode_jpeg(image, format='rgb', quality=100)
-
-        # Initializes function that converts CMYK JPEG data to RGB JPEG data.
-        self._cmyk_data = tf.placeholder(dtype=tf.string)
-        image = tf.image.decode_jpeg(self._cmyk_data, channels=0)
-        self._cmyk_to_rgb = tf.image.encode_jpeg(image, format='rgb', quality=100)
-
         # Initializes function that decodes RGB JPEG data.
         self._decode_jpeg_data = tf.placeholder(dtype=tf.string)
         self._decode_jpeg = tf.image.decode_jpeg(self._decode_jpeg_data, channels=3)
-
-    def png_to_jpeg(self, image_data):
-        return self._sess.run(self._png_to_jpeg,
-                          feed_dict={self._png_data: image_data})
-
-    def cmyk_to_rgb(self, image_data):
-        return self._sess.run(self._cmyk_to_rgb,
-                          feed_dict={self._cmyk_data: image_data})
 
     def decode_jpeg(self, image_data):
         image = self._sess.run(self._decode_jpeg,
@@ -228,16 +171,6 @@ def _process_image(filename, coder):
     # Read the image file.
     with tf.gfile.FastGFile(filename, 'rb') as f:
         image_data = f.read()
-
-    # Clean the dirty data.
-    if _is_png(filename):
-        # 1 image is a PNG.
-        tf.logging.info('Converting PNG to JPEG for %s' % filename)
-        image_data = coder.png_to_jpeg(image_data)
-    elif _is_cmyk(filename):
-        # 22 JPEG images are in CMYK colorspace.
-        tf.logging.info('Converting CMYK to RGB for %s' % filename)
-        image_data = coder.cmyk_to_rgb(image_data)
 
     # Decode the RGB JPEG.
     image = coder.decode_jpeg(image_data)
