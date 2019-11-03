@@ -4,7 +4,7 @@ The program works in two parts
 1. extract.py: scraps the youtube 8m videos and downloads two frames per video (can be changed in program)
 2. yt8m_tfrecord.py: creates tfrecord and pbtxt of top n classes which has max images. (can be modified to choose specific classes)
 
-All the vieos are downloaded in temp dir, frames are extracted and then video is deleted. 
+All the vieos are downloaded in temp dir, frames are extracted and then video is deleted. It will also create **pbtxt** file for further use.
 **multiprocessing** is used in python to scrap multiple videos at sametime.
 
 ## Getting Started
