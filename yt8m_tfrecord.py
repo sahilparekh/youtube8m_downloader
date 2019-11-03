@@ -193,7 +193,7 @@ def _process_dataset(filenames, synsets, labels, output_directory, prefix,
 
 
 def convert_to_tf_records(raw_data_dir):
-    """Convert the Imagenet dataset into TF-Record dumps."""
+    """Convert the yt8m dataset into TF-Record dumps."""
 
     # Shuffle training records to ensure we are distributing classes
     # across the batches.
